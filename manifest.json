@@ -1,11 +1,10 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "notion-richtext-shortcuts",
+	"name": "Notion RichText Shortcuts",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "All the richtext shortcuts you know and love from Notion, now in Obsidian!",
+	"author": "Joshua Wootonn",
+	"authorUrl": "https://github.com/joshuawootonn",
 	"isDesktopOnly": false
 }
