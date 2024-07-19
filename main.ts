@@ -1,5 +1,8 @@
 import { App, Plugin, PluginSettingTab, Setting } from "obsidian";
 
+import { EditorSelection } from "@codemirror/state";
+import { keymap } from "@codemirror/view";
+
 interface NotionRichtextShortcutsSettings {
 	mySetting: string;
 }
@@ -16,9 +19,67 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 		this.addSettingTab(
 			new NotionRichtextShortcutsSettingsTab(this.app, this)
 		);
+
+		this.registerEditorExtension({
+			extension: [
+				keymap.of([
+					{
+						key: "Space",
+						run(view) {
+							let hasChanged = false;
+							view.dispatch(
+								view.state.changeByRange((range) => {
+									if (range.from !== range.to)
+										return { range };
+
+									const isCheckboxShortcut =
+										view.state.sliceDoc(
+											range.from - 2,
+											range.to
+										);
+
+									const isBeginningOfLine =
+										view.state.doc.lineAt(range.from)
+											.from ===
+										range.from - 2;
+
+									if (
+										isCheckboxShortcut === "[]" &&
+										isBeginningOfLine
+									) {
+										hasChanged = true;
+										return {
+											changes: [
+												{
+													from: range.from - 2,
+													to: range.from,
+													insert: "- [ ] ",
+												},
+											],
+											range: EditorSelection.range(
+												range.from + 4,
+												range.from + 4
+											),
+										};
+									}
+
+									return { range };
+								})
+							);
+							return hasChanged;
+						},
+					},
+				]),
+			],
+		});
 	}
 
 	onunload() {}
+
+	onKeyDown(cm: CodeMirror.Editor, event: KeyboardEvent) {
+		// handle keydown event
+		console.log("keydown", event);
+	}
 
 	async loadSettings() {
 		this.settings = Object.assign(
