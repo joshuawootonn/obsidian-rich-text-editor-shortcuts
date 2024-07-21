@@ -1,4 +1,10 @@
-import { App, Plugin, PluginSettingTab, Setting } from "obsidian";
+import {
+	App,
+	Plugin,
+	PluginManifest,
+	PluginSettingTab,
+	Setting,
+} from "obsidian";
 
 import { EditorSelection } from "@codemirror/state";
 import { keymap } from "@codemirror/view";
@@ -13,16 +19,74 @@ const DEFAULT_SETTINGS: NotionRichtextShortcutsSettings = {
 
 export default class NotionRichtextShortcutsPlugin extends Plugin {
 	settings: NotionRichtextShortcutsSettings;
+	clipboardText: string;
+
+	constructor(app: App, manifest: PluginManifest) {
+		super(app, manifest);
+		this.saveClipboardText = this.saveClipboardText.bind(this);
+		this.clipboardText = "";
+	}
+
+	saveClipboardText() {
+		navigator.clipboard.readText().then((text) => {
+			this.clipboardText = text;
+		});
+	}
 
 	async onload() {
 		await this.loadSettings();
 		this.addSettingTab(
 			new NotionRichtextShortcutsSettingsTab(this.app, this)
 		);
+		// TODO(josh): Figure out how to better track the clipboard contents
+		window.addEventListener("copy", this.saveClipboardText);
+		window.addEventListener("focus", this.saveClipboardText);
 
 		this.registerEditorExtension({
 			extension: [
 				keymap.of([
+					{
+						key: "Meta-v",
+						run: (view) => {
+							let hasChanged = false;
+
+							const clipboardText = this.clipboardText;
+							try {
+								const url = new URL(clipboardText);
+								view.dispatch(
+									view.state.changeByRange((range) => {
+										if (range.from === range.to)
+											return { range };
+
+										hasChanged = true;
+										const selectionText =
+											view.state.sliceDoc(
+												range.from,
+												range.to
+											);
+										const next = `[${selectionText}](${url.href})`;
+										return {
+											changes: [
+												{
+													from: range.from,
+													to: range.to,
+													insert: next,
+												},
+											],
+											range: EditorSelection.range(
+												range.from,
+												range.from + next.length
+											),
+										};
+									})
+								);
+							} catch (error) {
+								return hasChanged;
+							}
+
+							return hasChanged;
+						},
+					},
 					{
 						key: "Space",
 						run(view) {
@@ -74,7 +138,10 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 		});
 	}
 
-	onunload() {}
+	onunload() {
+		window.removeEventListener("copy", this.saveClipboardText);
+		window.removeEventListener("focus", this.saveClipboardText);
+	}
 
 	onKeyDown(cm: CodeMirror.Editor, event: KeyboardEvent) {
 		// handle keydown event
