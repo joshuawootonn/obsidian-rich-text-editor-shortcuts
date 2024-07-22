@@ -2,18 +2,8 @@ import { App, Plugin, PluginManifest } from "obsidian";
 
 import { EditorSelection } from "@codemirror/state";
 import { keymap } from "@codemirror/view";
-import { NotionRichtextShortcutsSettingsTab } from "./settings";
-
-interface NotionRichtextShortcutsSettings {
-	mySetting: string;
-}
-
-const DEFAULT_SETTINGS: NotionRichtextShortcutsSettings = {
-	mySetting: "default",
-};
 
 export default class NotionRichtextShortcutsPlugin extends Plugin {
-	settings: NotionRichtextShortcutsSettings;
 	clipboardText: string;
 
 	constructor(app: App, manifest: PluginManifest) {
@@ -29,10 +19,6 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 	}
 
 	async onload() {
-		await this.loadSettings();
-		this.addSettingTab(
-			new NotionRichtextShortcutsSettingsTab(this.app, this)
-		);
 		window.document.addEventListener(
 			"selectionchange",
 			this.saveClipboardText
@@ -265,17 +251,5 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 			"selectionchange",
 			this.saveClipboardText
 		);
-	}
-
-	async loadSettings() {
-		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
-			await this.loadData()
-		);
-	}
-
-	async saveSettings() {
-		await this.saveData(this.settings);
 	}
 }
