@@ -30,6 +30,7 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 	saveClipboardText() {
 		navigator.clipboard.readText().then((text) => {
 			this.clipboardText = text;
+			console.log("clipboard text", text);
 		});
 	}
 
@@ -38,9 +39,10 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 		this.addSettingTab(
 			new NotionRichtextShortcutsSettingsTab(this.app, this)
 		);
-		// TODO(josh): Figure out how to better track the clipboard contents
-		window.addEventListener("copy", this.saveClipboardText);
-		window.addEventListener("focus", this.saveClipboardText);
+		window.document.addEventListener(
+			"selectionchange",
+			this.saveClipboardText
+		);
 
 		this.registerEditorExtension({
 			extension: [
@@ -139,8 +141,10 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 	}
 
 	onunload() {
-		window.removeEventListener("copy", this.saveClipboardText);
-		window.removeEventListener("focus", this.saveClipboardText);
+		window.document.removeEventListener(
+			"selectionchange",
+			this.saveClipboardText
+		);
 	}
 
 	onKeyDown(cm: CodeMirror.Editor, event: KeyboardEvent) {
