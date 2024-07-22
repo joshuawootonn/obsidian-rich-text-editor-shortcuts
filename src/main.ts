@@ -25,7 +25,6 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 	saveClipboardText() {
 		navigator.clipboard.readText().then((text) => {
 			this.clipboardText = text;
-			console.log("clipboard text", text);
 		});
 	}
 
@@ -42,6 +41,41 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 		this.registerEditorExtension({
 			extension: [
 				keymap.of([
+					{
+						key: "Meta-Shift-k",
+						run: (view) => {
+							let hasChanged = false;
+
+							view.dispatch(
+								view.state.changeByRange((range) => {
+									if (range.from === range.to)
+										return { range };
+
+									hasChanged = true;
+									const selectionText = view.state.sliceDoc(
+										range.from,
+										range.to
+									);
+									const next = `[[${selectionText}]]`;
+									return {
+										changes: [
+											{
+												from: range.from,
+												to: range.to,
+												insert: next,
+											},
+										],
+										range: EditorSelection.range(
+											range.from + next.length - 2,
+											range.from + next.length - 2
+										),
+									};
+								})
+							);
+
+							return hasChanged;
+						},
+					},
 					{
 						key: "Meta-v",
 						run: (view) => {
@@ -141,7 +175,6 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 			this.saveClipboardText
 		);
 	}
-
 
 	async loadSettings() {
 		this.settings = Object.assign(
