@@ -1,13 +1,8 @@
-import {
-	App,
-	Plugin,
-	PluginManifest,
-	PluginSettingTab,
-	Setting,
-} from "obsidian";
+import { App, Plugin, PluginManifest } from "obsidian";
 
 import { EditorSelection } from "@codemirror/state";
 import { keymap } from "@codemirror/view";
+import { NotionRichtextShortcutsSettingsTab } from "./settings";
 
 interface NotionRichtextShortcutsSettings {
 	mySetting: string;
@@ -147,10 +142,6 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 		);
 	}
 
-	onKeyDown(cm: CodeMirror.Editor, event: KeyboardEvent) {
-		// handle keydown event
-		console.log("keydown", event);
-	}
 
 	async loadSettings() {
 		this.settings = Object.assign(
@@ -162,33 +153,5 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
-	}
-}
-
-class NotionRichtextShortcutsSettingsTab extends PluginSettingTab {
-	plugin: NotionRichtextShortcutsPlugin;
-
-	constructor(app: App, plugin: NotionRichtextShortcutsPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const { containerEl } = this;
-
-		containerEl.empty();
-
-		new Setting(containerEl)
-			.setName("Setting #1")
-			.setDesc("It's a secret")
-			.addText((text) =>
-				text
-					.setPlaceholder("Enter your secret")
-					.setValue(this.plugin.settings.mySetting)
-					.onChange(async (value) => {
-						this.plugin.settings.mySetting = value;
-						await this.plugin.saveSettings();
-					})
-			);
 	}
 }
