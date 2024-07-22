@@ -42,6 +42,64 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 			extension: [
 				keymap.of([
 					{
+						key: "Meta-u",
+						run: (view) => {
+							let hasChanged = false;
+
+							view.dispatch(
+								view.state.changeByRange((range) => {
+									if (range.from === range.to)
+										return { range };
+
+									hasChanged = true;
+									const selectionText = view.state.sliceDoc(
+										range.from,
+										range.to
+									);
+
+									if (
+										selectionText.startsWith("<u>") &&
+										selectionText.endsWith("</u>")
+									) {
+										const next = selectionText
+											.replace("<u>", "")
+											.replace("</u>", "");
+										return {
+											changes: [
+												{
+													from: range.from,
+													to: range.to,
+													insert: next,
+												},
+											],
+											range: EditorSelection.range(
+												range.from,
+												range.from + next.length
+											),
+										};
+									} else {
+										const next = `<u>${selectionText}</u>`;
+										return {
+											changes: [
+												{
+													from: range.from,
+													to: range.to,
+													insert: next,
+												},
+											],
+											range: EditorSelection.range(
+												range.from,
+												range.from + next.length
+											),
+										};
+									}
+								})
+							);
+
+							return hasChanged;
+						},
+					},
+					{
 						key: "Meta-Shift-k",
 						run: (view) => {
 							let hasChanged = false;
