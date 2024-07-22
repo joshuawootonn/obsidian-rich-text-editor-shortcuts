@@ -185,37 +185,70 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 									if (range.from !== range.to)
 										return { range };
 
-									const isCheckboxShortcut =
+									const checkboxCharacterCount = 6;
+									const currentLine = view.state.doc.lineAt(
+										range.from
+									);
+
+									const incompleteCheckboxSlice =
 										view.state.sliceDoc(
 											range.from - 2,
 											range.to
 										);
 
-									const isBeginningOfLine =
-										view.state.doc.lineAt(range.from)
-											.from ===
-										range.from - 2;
+									let isBeginningOfLine =
+										currentLine.from === range.from - 2;
 
 									if (
-										isCheckboxShortcut === "[]" &&
+										incompleteCheckboxSlice === "[]" &&
 										isBeginningOfLine
 									) {
 										hasChanged = true;
 										return {
 											changes: [
 												{
-													from: range.from - 2,
+													from: currentLine.from,
 													to: range.from,
 													insert: "- [ ] ",
 												},
 											],
 											range: EditorSelection.range(
-												range.from + 4,
-												range.from + 4
+												currentLine.from +
+													checkboxCharacterCount,
+												currentLine.from +
+													checkboxCharacterCount
 											),
 										};
 									}
+									const completedCheckboxSlice =
+										view.state.sliceDoc(
+											range.from - 3,
+											range.to
+										);
+									isBeginningOfLine =
+										currentLine.from === range.from - 3;
 
+									if (
+										completedCheckboxSlice === "[x]" &&
+										isBeginningOfLine
+									) {
+										hasChanged = true;
+										return {
+											changes: [
+												{
+													from: currentLine.from,
+													to: range.from,
+													insert: "- [x] ",
+												},
+											],
+											range: EditorSelection.range(
+												currentLine.from +
+													checkboxCharacterCount,
+												currentLine.from +
+													checkboxCharacterCount
+											),
+										};
+									}
 									return { range };
 								})
 							);
