@@ -1,7 +1,7 @@
 {
 	"id": "notion-richtext-shortcuts",
 	"name": "Notion RichText Shortcuts",
-	"version": "1.0.0",
+	"version": "1.0.3",
 	"minAppVersion": "0.15.0",
 	"description": "All the richtext shortcuts you love in Notion, nown i Obsidian!",
 	"author": "Joshua Wootonn",
