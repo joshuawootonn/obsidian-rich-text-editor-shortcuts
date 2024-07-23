@@ -224,7 +224,7 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 												},
 											],
 											range: EditorSelection.range(
-												range.from,
+												range.from + next.length,
 												range.from + next.length
 											),
 										};
