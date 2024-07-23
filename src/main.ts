@@ -1,6 +1,6 @@
 import { App, Plugin, PluginManifest } from "obsidian";
 
-import { EditorSelection } from "@codemirror/state";
+import { EditorSelection, Prec } from "@codemirror/state";
 import { keymap } from "@codemirror/view";
 
 export default class NotionRichtextShortcutsPlugin extends Plugin {
@@ -26,6 +26,81 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 
 		this.registerEditorExtension({
 			extension: [
+				/**
+				 * Had to compromise on this shortcut unfortunately.
+				 *
+				 * `Prec.highest` doesn't do anything because the default plugins are registered first
+				 * and already use it presumably. I say presumably because I think the default plugins
+				 * are close source and this works in vanilla codemirror against the vanilla codemirror default plugins.
+				 * Another user mentioned this here: https://forum.obsidian.md/t/change-builtin-obsidian-hotkey-handling-precedence-to-allow-for-overriding-hardcoded-mappings-in-plugins/40797/5
+				 *
+				 * I found on the codemirror forum that domEventHanlders override this order, so I tried creating one,
+				 * but "Enter" events are not being triggered for the codemirror editor in Obsidian.
+				 * CodeMirror forum post: https://discuss.codemirror.net/t/autocompletion-keymap-precedence-again/4827/7
+				 */
+				Prec.highest(
+					keymap.of([
+						{
+							key: "Mod-Shift-Enter",
+							run: (view) => {
+								let hasChanged = false;
+
+								view.dispatch(
+									view.state.changeByRange((range) => {
+										const currentLine =
+											view.state.doc.lineAt(range.from);
+
+										const isUnchecked =
+											currentLine.text.startsWith(
+												"- [ ] "
+											);
+
+										if (isUnchecked) {
+											hasChanged = true;
+											return {
+												changes: [
+													{
+														from: currentLine.from,
+														to:
+															currentLine.from +
+															6,
+														insert: "- [x] ",
+													},
+												],
+												range,
+											};
+										}
+
+										const isChecked =
+											currentLine.text.startsWith(
+												"- [x] "
+											);
+
+										if (isChecked) {
+											hasChanged = true;
+											return {
+												changes: [
+													{
+														from: currentLine.from,
+														to:
+															currentLine.from +
+															6,
+														insert: "- [ ] ",
+													},
+												],
+												range,
+											};
+										}
+
+										return { range };
+									})
+								);
+
+								return hasChanged;
+							},
+						},
+					])
+				),
 				keymap.of([
 					{
 						key: "Meta-u",
