@@ -103,7 +103,7 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 				),
 				keymap.of([
 					{
-						key: "Meta-u",
+						key: "Mod-u",
 						run: (view) => {
 							let hasChanged = false;
 
@@ -161,7 +161,7 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 						},
 					},
 					{
-						key: "Meta-Shift-k",
+						key: "Mod-Shift-k",
 						run: (view) => {
 							let hasChanged = false;
 
@@ -196,7 +196,7 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 						},
 					},
 					{
-						key: "Meta-v",
+						key: "Mod-v",
 						run: (view) => {
 							let hasChanged = false;
 
