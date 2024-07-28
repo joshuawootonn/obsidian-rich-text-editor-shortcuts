@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-rich-text-editor-shortcuts",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"description": "Create and toggle checkboxes, paste links wrapping your current selection, and toggle underline without leaving the keyboard.",
 	"main": "main.js",
 	"scripts": {
