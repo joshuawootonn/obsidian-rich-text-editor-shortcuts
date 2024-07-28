@@ -1,5 +1,5 @@
 {
-	"name": "notion-richtext-shortcuts-for-obsidian",
+	"name": "obsidian-rich-text-editing-shortcuts",
 	"version": "1.0.4",
 	"description": "All the richtext shortcuts you know and love from Notion, now in Obsidian!",
 	"main": "main.js",
