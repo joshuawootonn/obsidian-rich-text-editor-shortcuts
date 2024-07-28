@@ -1,6 +1,6 @@
-# Obsidian Rich Text Editing Shortcuts
+# Obsidian Rich Text Editor Shortcuts
 
-I created this plugin to port some of my favorite richtext shortcuts from Notion to Obsidian.
+I created this plugin to port some of my favorite richtext editor shortcuts from Notion to Obsidian.
 Here is a list so far
 
 https://github.com/user-attachments/assets/25f283f4-b284-45f0-be45-8da0a4ae26c9

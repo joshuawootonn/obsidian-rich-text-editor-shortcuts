@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-rich-text-editing-shortcuts",
+	"name": "obsidian-rich-text-editor-shortcuts",
 	"version": "1.0.4",
-	"description": "All the richtext shortcuts you know and love from Notion, now in Obsidian!",
+	"description": "Create and toggle checkboxes, paste links wrapping your current selection, and toggle underline without leaving the keyboard.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
