@@ -21,7 +21,7 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 	async onload() {
 		window.document.addEventListener(
 			"selectionchange",
-			this.saveClipboardText
+			this.saveClipboardText,
 		);
 
 		this.registerEditorExtension({
@@ -50,19 +50,28 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 										const currentLine =
 											view.state.doc.lineAt(range.from);
 
-										const isUnchecked =
-											currentLine.text.startsWith(
-												"- [ ] "
-											);
+										const isUnchecked = currentLine.text
+											.replace("\t", "")
+											.trimStart()
+											.startsWith("- [ ] ");
+										let unindentedLine = currentLine.text
+											.replace("\t", "")
+											.trimStart();
+										let indentedCharacterCount =
+											currentLine.text.length -
+											unindentedLine.length;
 
 										if (isUnchecked) {
 											hasChanged = true;
 											return {
 												changes: [
 													{
-														from: currentLine.from,
+														from:
+															currentLine.from +
+															indentedCharacterCount,
 														to:
 															currentLine.from +
+															indentedCharacterCount +
 															6,
 														insert: "- [x] ",
 													},
@@ -71,19 +80,28 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 											};
 										}
 
-										const isChecked =
-											currentLine.text.startsWith(
-												"- [x] "
-											);
+										const isChecked = currentLine.text
+											.replace("\t", "")
+											.trimStart()
+											.startsWith("- [x] ");
+										unindentedLine = currentLine.text
+											.replace("\t", "")
+											.trimStart();
+										indentedCharacterCount =
+											currentLine.text.length -
+											unindentedLine.length;
 
 										if (isChecked) {
 											hasChanged = true;
 											return {
 												changes: [
 													{
-														from: currentLine.from,
+														from:
+															currentLine.from +
+															indentedCharacterCount,
 														to:
 															currentLine.from +
+															indentedCharacterCount +
 															6,
 														insert: "- [ ] ",
 													},
@@ -93,13 +111,13 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 										}
 
 										return { range };
-									})
+									}),
 								);
 
 								return hasChanged;
 							},
 						},
-					])
+					]),
 				),
 				keymap.of([
 					{
@@ -115,7 +133,7 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 									hasChanged = true;
 									const selectionText = view.state.sliceDoc(
 										range.from,
-										range.to
+										range.to,
 									);
 
 									if (
@@ -135,7 +153,7 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 											],
 											range: EditorSelection.range(
 												range.from,
-												range.from + next.length
+												range.from + next.length,
 											),
 										};
 									} else {
@@ -150,11 +168,11 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 											],
 											range: EditorSelection.range(
 												range.from,
-												range.from + next.length
+												range.from + next.length,
 											),
 										};
 									}
-								})
+								}),
 							);
 
 							return hasChanged;
@@ -173,7 +191,7 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 									hasChanged = true;
 									const selectionText = view.state.sliceDoc(
 										range.from,
-										range.to
+										range.to,
 									);
 									const next = `[[${selectionText}]]`;
 									return {
@@ -186,10 +204,10 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 										],
 										range: EditorSelection.range(
 											range.from + next.length - 2,
-											range.from + next.length - 2
+											range.from + next.length - 2,
 										),
 									};
-								})
+								}),
 							);
 
 							return hasChanged;
@@ -212,7 +230,7 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 										const selectionText =
 											view.state.sliceDoc(
 												range.from,
-												range.to
+												range.to,
 											);
 										const next = `[${selectionText}](${url.href})`;
 										return {
@@ -225,10 +243,10 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 											],
 											range: EditorSelection.range(
 												range.from + next.length,
-												range.from + next.length
+												range.from + next.length,
 											),
 										};
-									})
+									}),
 								);
 							} catch (error) {
 								return hasChanged;
@@ -248,17 +266,25 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 
 									const checkboxCharacterCount = 6;
 									const currentLine = view.state.doc.lineAt(
-										range.from
+										range.from,
 									);
 
 									const incompleteCheckboxSlice =
 										view.state.sliceDoc(
 											range.from - 2,
-											range.to
+											range.to,
 										);
+									let lineTrimmingIndentation = view.state
+										.sliceDoc(
+											currentLine.from,
+											range.from - 2,
+										)
+										.replace("\t", "")
+										.trim();
 
 									let isBeginningOfLine =
-										currentLine.from === range.from - 2;
+										currentLine.from === range.from - 2 ||
+										lineTrimmingIndentation.length === 0;
 
 									if (
 										incompleteCheckboxSlice === "[]" &&
@@ -268,26 +294,36 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 										return {
 											changes: [
 												{
-													from: currentLine.from,
+													from: range.from - 2,
 													to: range.from,
 													insert: "- [ ] ",
 												},
 											],
 											range: EditorSelection.range(
-												currentLine.from +
+												range.from -
+													2 +
 													checkboxCharacterCount,
-												currentLine.from +
-													checkboxCharacterCount
+												range.from -
+													2 +
+													checkboxCharacterCount,
 											),
 										};
 									}
 									const completedCheckboxSlice =
 										view.state.sliceDoc(
 											range.from - 3,
-											range.to
+											range.to,
 										);
+									lineTrimmingIndentation = view.state
+										.sliceDoc(
+											currentLine.from,
+											range.from - 3,
+										)
+										.replace("\t", "")
+										.trim();
 									isBeginningOfLine =
-										currentLine.from === range.from - 3;
+										currentLine.from === range.from - 3 ||
+										lineTrimmingIndentation.length === 0;
 
 									if (
 										completedCheckboxSlice === "[x]" &&
@@ -297,21 +333,23 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 										return {
 											changes: [
 												{
-													from: currentLine.from,
+													from: range.from - 3,
 													to: range.from,
 													insert: "- [x] ",
 												},
 											],
 											range: EditorSelection.range(
-												currentLine.from +
+												range.from -
+													3 +
 													checkboxCharacterCount,
-												currentLine.from +
-													checkboxCharacterCount
+												range.from -
+													3 +
+													checkboxCharacterCount,
 											),
 										};
 									}
 									return { range };
-								})
+								}),
 							);
 							return hasChanged;
 						},
@@ -324,7 +362,7 @@ export default class NotionRichtextShortcutsPlugin extends Plugin {
 	onunload() {
 		window.document.removeEventListener(
 			"selectionchange",
-			this.saveClipboardText
+			this.saveClipboardText,
 		);
 	}
 }
