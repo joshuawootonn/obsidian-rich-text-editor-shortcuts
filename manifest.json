@@ -1,7 +1,7 @@
 {
 	"id": "rich-text-editor-shortcuts",
 	"name": "Rich Text Editor Shortcuts",
-	"version": "1.0.5",
+	"version": "1.0.6",
 	"minAppVersion": "0.15.0",
 	"description": "Create and toggle checkboxes, paste links wrapping your current selection, and toggle underline without leaving the keyboard.",
 	"author": "Joshua Wootonn",
